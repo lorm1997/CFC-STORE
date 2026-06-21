@@ -733,16 +733,29 @@ function seedData(){
 
           <hr class="sep" />
 
-          <!-- Producto desde inventario -->
+          <!-- Producto desde CATÁLOGO — selector visual con fotos -->
           <div style="margin-bottom:16px;">
-            <label>Producto</label>
-            <select id="pc-producto-sel" onchange="onPcProductoChange()" style="margin-top:6px;">
-              <option value="">— Seleccionar del inventario —</option>
-            </select>
-            <!-- Price indicator -->
-            <div id="pc-precio-indicador" style="display:none;margin-top:8px;padding:8px 12px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:6px;font-size:13px;font-weight:700;color:#15803d;display:flex;align-items:center;gap:6px;">
-              <span>💰</span><span id="pc-precio-texto"></span>
+            <label>Producto del catálogo</label>
+            <input type="hidden" id="pc-producto-sel" value="" />
+
+            <!-- Producto seleccionado (preview) -->
+            <div id="pc-prod-seleccionado" style="display:none;margin-top:8px;padding:10px 12px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:8px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="abrirSelectorCatalogoPedido()">
+              <img id="pc-prod-foto" src="" style="width:48px;height:48px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff;" />
+              <div style="flex:1;">
+                <div id="pc-prod-nombre-sel" style="font-weight:700;font-size:13px;"></div>
+                <div id="pc-prod-det-sel" style="font-size:11px;color:var(--muted);margin-top:1px;"></div>
+              </div>
+              <div id="pc-precio-texto" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);"></div>
+              <span style="font-size:11px;color:var(--muted);">✏️</span>
             </div>
+
+            <!-- Botón para abrir selector -->
+            <button type="button" id="pc-btn-elegir" onclick="abrirSelectorCatalogoPedido()"
+              style="margin-top:8px;width:100%;padding:10px;border:2px dashed var(--border);border-radius:8px;background:#fff;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;"
+              onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+              🗂️ Elegir del catálogo
+            </button>
           </div>
 
           <hr class="sep" />
@@ -1095,6 +1108,19 @@ function seedData(){
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-ver-pedido')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SELECTOR DE CATÁLOGO PARA PEDIDOS -->
+<div class="modal-overlay" id="modal-selector-catalogo">
+  <div class="modal" style="width:600px;max-height:85vh;">
+    <div class="modal-title">🗂️ Elegir del Catálogo</div>
+    <input type="text" id="sel-cat-buscar" placeholder="🔍 Buscar por nombre..." oninput="renderSelectorCatalogo()"
+      style="margin-bottom:16px;" />
+    <div id="sel-cat-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;max-height:420px;overflow-y:auto;padding:4px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-selector-catalogo')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -1631,32 +1657,84 @@ function agregarStockProgramatico(productoId,cantidad){
 let ultimoPedidoTexto = '';
 
 function onPcProductoChange(){
-  const pid=document.getElementById('pc-producto-sel').value;
-  const p=state.productos.find(x=>x.id===pid)||state.inventario.find(x=>x.id===pid);
-
-  // Show price indicator
-  const indicador=document.getElementById('pc-precio-indicador');
-  const precioTexto=document.getElementById('pc-precio-texto');
-  if(p && p.precio && indicador && precioTexto){
-    precioTexto.textContent=`Precio: $${Number(p.precio).toLocaleString('es-CO')} por unidad`;
-    indicador.style.display='flex';
-  } else if(indicador){
-    indicador.style.display='none';
-  }
-
+  // Called after seleccionarProductoCatalogo sets the value
+  const pid = document.getElementById('pc-producto-sel').value;
+  const p = state.productos.find(x=>x.id===pid);
   if(p){
     const mangaVal=p.version||'Corta';
-    document.querySelectorAll('#pc-manga-grupo .toggle-btn').forEach(b=>{
-      b.classList.toggle('active',b.dataset.val===mangaVal);
-    });
+    document.querySelectorAll('#pc-manga-grupo .toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===mangaVal));
     document.getElementById('pc-manga-val').value=mangaVal;
     const edVal=p.edicion||'Fan';
-    document.querySelectorAll('#pc-version-grupo .toggle-btn').forEach(b=>{
-      b.classList.toggle('active',b.dataset.val===edVal);
-    });
+    document.querySelectorAll('#pc-version-grupo .toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===edVal));
     document.getElementById('pc-version-val').value=edVal;
   }
   actualizarPedidoPreview();
+}
+
+/* ── SELECTOR VISUAL DEL CATÁLOGO PARA PEDIDOS ── */
+function abrirSelectorCatalogoPedido(){
+  document.getElementById('sel-cat-buscar').value='';
+  renderSelectorCatalogo();
+  openModal('modal-selector-catalogo');
+}
+
+function renderSelectorCatalogo(){
+  const q = document.getElementById('sel-cat-buscar').value.toLowerCase();
+  const prods = state.productos.filter(p=>
+    !q || p.nombre.toLowerCase().includes(q)
+  );
+  const grid = document.getElementById('sel-cat-grid');
+  if(!prods.length){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;color:var(--muted);padding:32px;font-size:13px;">Sin productos en el catálogo.<br>Agrega fichas en la sección <b>Catálogo</b>.</div>';
+    return;
+  }
+  grid.innerHTML = prods.map(p=>`
+    <div onclick="seleccionarProductoCatalogo('${p.id}')"
+      style="background:#fff;border:2px solid var(--border);border-radius:10px;overflow:hidden;cursor:pointer;transition:all .18s;"
+      onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 20px rgba(34,197,94,.2)'"
+      onmouseout="this.style.borderColor='var(--border)';this.style.transform='';this.style.boxShadow=''">
+      <!-- Foto -->
+      <div style="height:120px;background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+        ${p.foto
+          ? `<img src="${p.foto}" style="width:100%;height:100%;object-fit:contain;" />`
+          : `<span style="font-size:42px;opacity:.25;">👕</span>`}
+      </div>
+      <!-- Info -->
+      <div style="padding:10px;">
+        <div style="font-weight:700;font-size:12.5px;line-height:1.3;color:var(--ink);margin-bottom:4px;">${p.nombre}</div>
+        <div style="font-size:11px;color:var(--muted);">${p.tipo||'Camiseta'} · ${p.edicion||'Fan'}</div>
+        ${p.precio ? `<div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--accent2);margin-top:4px;">$${Number(p.precio).toLocaleString('es-CO')}</div>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+function seleccionarProductoCatalogo(pid){
+  const p = state.productos.find(x=>x.id===pid);
+  if(!p) return;
+
+  // Guardar ID
+  document.getElementById('pc-producto-sel').value = pid;
+
+  // Mostrar preview del producto seleccionado
+  const sel = document.getElementById('pc-prod-seleccionado');
+  const btn = document.getElementById('pc-btn-elegir');
+  const fotoEl = document.getElementById('pc-prod-foto');
+  const nombreEl = document.getElementById('pc-prod-nombre-sel');
+  const detEl = document.getElementById('pc-prod-det-sel');
+  const precioEl = document.getElementById('pc-precio-texto');
+
+  if(p.foto){ fotoEl.src=p.foto; fotoEl.style.display='block'; }
+  else { fotoEl.style.display='none'; }
+  nombreEl.textContent = p.nombre;
+  detEl.textContent = `${p.tipo||'Camiseta'} · ${p.edicion||'Fan'} · Manga ${p.version||'Corta'}`;
+  precioEl.textContent = p.precio ? `$${Number(p.precio).toLocaleString('es-CO')}` : '';
+
+  sel.style.display = 'flex';
+  btn.textContent = '✏️ Cambiar producto';
+
+  closeModal('modal-selector-catalogo');
+  onPcProductoChange();
+  toast(`✅ ${p.nombre} seleccionado`);
 }
 
 function buildTextoPreview(){
@@ -1779,6 +1857,10 @@ function limpiarFormPedido(){
   document.getElementById('pc-cantidad').value='1';
   document.getElementById('pc-estado').value='Encargado';
   document.getElementById('pc-producto-sel').value='';
+  const sel=document.getElementById('pc-prod-seleccionado');
+  const btn=document.getElementById('pc-btn-elegir');
+  if(sel) sel.style.display='none';
+  if(btn) btn.textContent='🗂️ Elegir del catálogo';
   // Reset toggles
   document.querySelectorAll('#pc-tipo-grupo .toggle-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
   document.getElementById('pc-tipo-val').value='Camiseta';
@@ -2451,11 +2533,6 @@ document.addEventListener('DOMContentLoaded', function(){
       if(sec==='inventario') renderInventario();
       if(sec==='pedidos') renderPedidos();
       if(sec==='pedidos-clientes'){
-        const sel=document.getElementById('pc-producto-sel');
-        if(sel){
-          sel.innerHTML='<option value="">— Seleccionar del inventario —</option>'+
-            state.inventario.map(i=>`<option value="${i.id}">${i.nombre} — ${i.talla} (Stock: ${i.stock})</option>`).join('');
-        }
         actualizarPedidoPreview();
       }
     });
