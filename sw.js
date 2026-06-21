@@ -3,8 +3,8 @@
    Maneja cache offline y almacenamiento persistente
 ================================================ */
 
-const CACHE_NAME = 'cfc-store-v1';
-const CACHE_VERSION = 1;
+const CACHE_NAME = 'cfc-store-v2';
+const CACHE_VERSION = 2;
 
 // Archivos a cachear para uso offline
 const ASSETS = [
@@ -91,15 +91,15 @@ self.addEventListener('fetch', event => {
   }
 });
 
-/* ── PERSISTENT STORAGE: solicitar almacenamiento persistente ── */
+/* ── MESSAGES ── */
 self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
   if (event.data && event.data.type === 'REQUEST_PERSISTENT_STORAGE') {
     if (navigator.storage && navigator.storage.persist) {
       navigator.storage.persist().then(granted => {
-        event.source.postMessage({
-          type: 'PERSISTENT_STORAGE_RESULT',
-          granted
-        });
+        event.source.postMessage({ type: 'PERSISTENT_STORAGE_RESULT', granted });
       });
     }
   }
