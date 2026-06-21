@@ -41,19 +41,65 @@ window.fbSet    = function(){}; // no-op (compatibilidad)
 window.fbDelete = function(){}; // no-op
 
 window.guardarDatos = function(){
-  Object.keys(SK).forEach(k => {
-    try{ localStorage.setItem(SK[k], JSON.stringify(state[k])); }catch(e){}
-  });
+  try {
+    // Guardar productos SIN fotos (para ahorrar espacio)
+    const prodsSinFoto = state.productos.map(({foto, ...p}) => ({...p, fotoId: p.id}));
+    localStorage.setItem(SK.productos, JSON.stringify(prodsSinFoto));
+
+    // Guardar fotos por separado (cada una con su ID)
+    state.productos.forEach(p => {
+      if(p.foto){
+        try{ localStorage.setItem('cfc_foto_'+p.id, p.foto); }
+        catch(e){ console.warn('Foto no guardada (sin espacio):', p.id); }
+      }
+    });
+
+    // Inventario sin fotos
+    const invSinFoto = state.inventario.map(({foto, ...i}) => i);
+    localStorage.setItem(SK.inventario, JSON.stringify(invSinFoto));
+
+    localStorage.setItem(SK.ventas, JSON.stringify(state.ventas));
+    localStorage.setItem(SK.pedidosClientes, JSON.stringify(state.pedidosClientes));
+
+    // Indicador visual de guardado
+    mostrarGuardado();
+  } catch(e) {
+    console.error('Error guardando:', e);
+    toast('⚠️ Error al guardar — almacenamiento lleno', 'err');
+  }
 };
+
+function mostrarGuardado(){
+  let ind = document.getElementById('save-indicator');
+  if(!ind){
+    ind = document.createElement('div');
+    ind.id = 'save-indicator';
+    ind.style.cssText = 'position:fixed;bottom:72px;right:16px;background:#15803d;color:#fff;padding:6px 14px;border-radius:20px;font-size:12px;font-weight:700;z-index:998;opacity:0;transition:opacity .3s;pointer-events:none;';
+    document.body.appendChild(ind);
+  }
+  ind.textContent = '✅ Guardado';
+  ind.style.opacity = '1';
+  clearTimeout(ind._t);
+  ind._t = setTimeout(() => { ind.style.opacity = '0'; }, 1800);
+}
 
 function cargarDatos(){
   const p  = localStorage.getItem(SK.productos);
   const v  = localStorage.getItem(SK.ventas);
   const i  = localStorage.getItem(SK.inventario);
   const pc = localStorage.getItem(SK.pedidosClientes);
-  if(p) state.productos       = JSON.parse(p);
-  if(v) state.ventas          = JSON.parse(v);
-  if(i) state.inventario      = JSON.parse(i);
+
+  if(p) {
+    const prods = JSON.parse(p);
+    // Restaurar fotos
+    prods.forEach(prod => {
+      const foto = localStorage.getItem('cfc_foto_'+prod.id);
+      if(foto) prod.foto = foto;
+    });
+    state.productos = prods;
+  }
+  if(v)  state.ventas          = JSON.parse(v);
+  if(i)  state.inventario      = JSON.parse(i);
   if(pc) state.pedidosClientes = JSON.parse(pc);
   return !!(p || i);
 }
@@ -1001,9 +1047,33 @@ function seedData(){
           <option>Kids</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option>
         </select>
       </div>
-      <div><label>Cantidad</label><input id="inv-cantidad" type="number" min="1" value="1" /></div>
-      <div><label>Precio ($)</label><input id="inv-precio" type="number" min="0" step="0.01" placeholder="0.00" /></div>
+      <div><label>Cantidad</label><input id="inv-cantidad" type="number" min="1" value="1" oninput="actualizarPrecioInv()" /></div>
+      <div><label>Precio base ($)</label><input id="inv-precio" type="number" min="0" step="0.01" placeholder="0.00" oninput="actualizarPrecioInv()" /></div>
     </div>
+
+    <!-- Personalización -->
+    <div style="margin:4px 0 14px;">
+      <label style="margin-bottom:8px;">Personalización estampado</label>
+      <div style="display:flex;gap:10px;">
+        <div onclick="toggleInvPers(false)" id="inv-pers-no"
+          style="flex:1;padding:10px;border:2px solid var(--accent);border-radius:8px;text-align:center;cursor:pointer;background:rgba(34,197,94,.1);font-weight:700;font-size:13px;transition:all .15s;">
+          ❌ Sin personalización
+        </div>
+        <div onclick="toggleInvPers(true)" id="inv-pers-si"
+          style="flex:1;padding:10px;border:2px solid var(--border);border-radius:8px;text-align:center;cursor:pointer;background:#fff;font-weight:700;font-size:13px;color:var(--muted);transition:all .15s;">
+          ✍️ Con personalización<br><span style="font-size:11px;font-weight:400;">+$2.500</span>
+        </div>
+      </div>
+      <input type="hidden" id="inv-personalizacion" value="no" />
+    </div>
+
+    <!-- Preview precio total -->
+    <div id="inv-precio-preview" style="display:none;padding:10px 14px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:7px;margin-bottom:4px;">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px;">Precio final en inventario</div>
+      <div id="inv-precio-final" style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--accent2);"></div>
+      <div id="inv-precio-detalle" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-cargar-inv')">Cancelar</button>
       <button class="btn btn-primary" onclick="confirmarCargarInventario()">✅ Cargar a Inventario</button>
@@ -1259,7 +1329,7 @@ function renderInventario(){
     <td><div style="width:48px;height:48px;border-radius:6px;overflow:hidden;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
       ${i.foto?`<img src="${i.foto}" style="width:100%;height:100%;object-fit:contain;" />`:`<span style="font-size:20px;">👕</span>`}
     </div></td>
-    <td><b>${i.nombre}</b></td>
+    <td><b>${i.nombre}</b>${i.personalizacion==='si'?'<br><span class="badge badge-purple" style="font-size:9px;">✍️ Estampado</span>':''}</td>
     <td>${i.tipo||'Camiseta'}</td>
     <td>${i.manga||'Corta'}</td>
     <td><span class="badge ${(i.edicion||'Fan')==='Player'?'badge-blue':'badge-cyan'}">${i.edicion||'Fan'}</span></td>
@@ -1287,36 +1357,71 @@ function abrirCargarInventario(catalogoId, invId=''){
   document.getElementById('inv-cat-det').textContent=`${p.tipo||'Camiseta'} · Manga ${p.version||'Corta'} · ${p.edicion||'Fan'}`;
   const fotoEl=document.getElementById('inv-cat-foto');
   if(p.foto){fotoEl.src=p.foto;fotoEl.style.display='block';}else{fotoEl.style.display='none';}
-  // Pre-fill talla/precio from product defaults
   document.getElementById('inv-talla-sel').value=p.talla||'M';
   document.getElementById('inv-precio').value=p.precio||'';
   document.getElementById('inv-cantidad').value='1';
+  // Reset personalización
+  toggleInvPers(false);
+  actualizarPrecioInv();
   openModal('modal-cargar-inv');
 }
+
+function toggleInvPers(conPers){
+  document.getElementById('inv-personalizacion').value = conPers ? 'si' : 'no';
+  const elNo = document.getElementById('inv-pers-no');
+  const elSi = document.getElementById('inv-pers-si');
+  if(conPers){
+    elSi.style.borderColor='var(--accent)'; elSi.style.background='rgba(34,197,94,.1)'; elSi.style.color='var(--ink)';
+    elNo.style.borderColor='var(--border)';  elNo.style.background='#fff'; elNo.style.color='var(--muted)';
+  } else {
+    elNo.style.borderColor='var(--accent)'; elNo.style.background='rgba(34,197,94,.1)'; elNo.style.color='var(--ink)';
+    elSi.style.borderColor='var(--border)';  elSi.style.background='#fff'; elSi.style.color='var(--muted)';
+  }
+  actualizarPrecioInv();
+}
+
+function actualizarPrecioInv(){
+  const precioBase = parseFloat(document.getElementById('inv-precio').value)||0;
+  const conPers    = document.getElementById('inv-personalizacion').value === 'si';
+  const preview    = document.getElementById('inv-precio-preview');
+  const finalEl    = document.getElementById('inv-precio-final');
+  const detEl      = document.getElementById('inv-precio-detalle');
+  if(precioBase <= 0){ preview.style.display='none'; return; }
+  const costoPers  = conPers ? 2500 : 0;
+  const total      = precioBase + costoPers;
+  preview.style.display = 'block';
+  finalEl.textContent = '$' + total.toLocaleString('es-CO');
+  detEl.textContent = conPers
+    ? `$${precioBase.toLocaleString('es-CO')} base + $2.500 estampado`
+    : `Precio base sin personalización`;
+}
+
 function confirmarCargarInventario(){
   const parts=document.getElementById('inv-cat-prod-id').value.split('|');
   const catalogoId=parts[0]; const invId=parts[1]||'';
   const talla=document.getElementById('inv-talla-sel').value;
   const qty=parseInt(document.getElementById('inv-cantidad').value);
-  const precio=parseFloat(document.getElementById('inv-precio').value)||0;
+  const precioBase=parseFloat(document.getElementById('inv-precio').value)||0;
+  const conPers=document.getElementById('inv-personalizacion').value === 'si';
+  const precio = precioBase + (conPers ? 2500 : 0);
   if(isNaN(qty)||qty<1){toast('Ingresa una cantidad válida','err');return;}
   const p=getProducto(catalogoId);
-  // Check if same product+talla already in inventario
-  const exist=state.inventario.find(i=>i.catalogoId===catalogoId&&i.talla===talla);
+  // Check if same product+talla+personalización already in inventario
+  const exist=state.inventario.find(i=>i.catalogoId===catalogoId&&i.talla===talla&&(i.personalizacion||'no')===(conPers?'si':'no'));
   if(exist){
     exist.stock+=qty; if(precio>0)exist.precio=precio;
   } else {
     state.inventario.push({
       id:uid(), catalogoId, nombre:p.nombre, tipo:p.tipo||'Camiseta',
       manga:p.version||'Corta', edicion:p.edicion||'Fan',
-      talla, precio, stock:qty, foto:p.foto||''
+      talla, precio, stock:qty, foto:p.foto||'',
+      personalizacion: conPers ? 'si' : 'no'
     });
   }
-  if(exist){ guardarDatos(); } else {
-    const ni=state.inventario[state.inventario.length-1];
-    guardarDatos(); }
+  guardarDatos();
   renderInventario(); closeModal('modal-cargar-inv');
-  toast(`✅ ${p.nombre} (${talla}) → ${qty} uds. en inventario`);
+  const label = conPers ? ' (con estampado)' : '';
+  toast(`✅ ${p.nombre} (${talla})${label} → ${qty} uds. · $${precio.toLocaleString('es-CO')}`);
 }
 function eliminarInventario(id){
   if(!confirm('¿Quitar este ítem del inventario?'))return;
@@ -1401,20 +1506,51 @@ function clearFoto(){
   const inp=document.getElementById('prod-foto-input');
   if(inp)inp.value='';
 }
+
+/* Comprime imagen a máximo 300x300px, calidad 70% → ~15-25KB por foto */
+function comprimirImagen(file, callback){
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const MAX = 300;
+      let w = img.width, h = img.height;
+      // Escalar manteniendo proporción
+      if(w > h){ if(w>MAX){h=Math.round(h*MAX/w);w=MAX;} }
+      else      { if(h>MAX){w=Math.round(w*MAX/h);h=MAX;} }
+      const canvas = document.createElement('canvas');
+      canvas.width=w; canvas.height=h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      const compressed = canvas.toDataURL('image/jpeg', 0.70);
+      const originalKB = Math.round(e.target.result.length * 0.75 / 1024);
+      const compressedKB = Math.round(compressed.length * 0.75 / 1024);
+      console.log(`Foto: ${originalKB}KB → ${compressedKB}KB`);
+      callback(compressed);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 function handleFotoInput(input){
   const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>setFotoPreview(e.target.result);
-  reader.readAsDataURL(file);
+  toast('Comprimiendo imagen...');
+  comprimirImagen(file, compressed => {
+    setFotoPreview(compressed);
+    toast('Foto lista ✓');
+  });
 }
 function handleFotoDrop(e){
   e.preventDefault();
   document.getElementById('prod-foto-dropzone').classList.remove('dz-over');
   const file=e.dataTransfer.files[0];
   if(!file||!file.type.startsWith('image/'))return;
-  const reader=new FileReader();
-  reader.onload=ev=>setFotoPreview(ev.target.result);
-  reader.readAsDataURL(file);
+  toast('Comprimiendo imagen...');
+  comprimirImagen(file, compressed => {
+    setFotoPreview(compressed);
+    toast('Foto lista ✓');
+  });
 }
 
 /* ===== VENTAS ===== */
@@ -1763,23 +1899,22 @@ function eliminarPedidoCli(id){
 /* FOTO PEDIDO CLIENTE */
 function handlePcFotoInput(input){
   const file=input.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
+  toast('Comprimiendo imagen...');
+  comprimirImagen(file, compressed => {
     const img=document.getElementById('pc-foto-preview');
     const ph=document.getElementById('pc-foto-placeholder');
     const btn=document.getElementById('pc-foto-clear');
-    img.src=e.target.result; img.style.display='block';
+    img.src=compressed; img.style.display='block';
     ph.style.display='none'; btn.style.display='block';
     actualizarPedidoPreview();
-  };
-  reader.readAsDataURL(file);
+    toast('Foto lista ✓');
+  });
 }
 function handlePcFotoDrop(e){
   e.preventDefault();
   document.getElementById('pc-foto-dropzone').classList.remove('dz-over');
   const file=e.dataTransfer.files[0];
   if(!file||!file.type.startsWith('image/'))return;
-  const inp=document.createElement('input'); inp.files=[file];
   handlePcFotoInput({files:e.dataTransfer.files});
 }
 function clearPcFoto(){
