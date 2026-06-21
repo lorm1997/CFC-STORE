@@ -536,6 +536,15 @@ function seedData(){
         <div style="font-size:10px;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:1px;margin-top:2px;">Ingresos totales</div>
       </div>
     </div>
+    <!-- Action buttons -->
+    <div style="position:relative;z-index:1;display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;">
+      <button onclick="compartirInventarioRapido()" style="display:flex;align-items:center;gap:7px;background:rgba(34,197,94,.18);border:1px solid rgba(34,197,94,.35);color:#fff;padding:9px 16px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+        📋 Compartir inventario
+      </button>
+      <button onclick="buscarActualizacion()" id="btn-update" style="display:flex;align-items:center;gap:7px;background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.25);color:var(--gold);padding:9px 16px;border-radius:7px;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.3px;">
+        🔄 Buscar actualización
+      </button>
+    </div>
   </div>
 
   <!-- KPI ROW -->
@@ -580,7 +589,9 @@ function seedData(){
 
 <!-- ===================== INVENTARIO ===================== -->
 <section id="section-inventario" class="section">
-  <div class="section-title">📦 Inventario <small>Stock activo</small></div>
+  <div class="section-title">📦 Inventario <small>Stock activo</small>
+    <button class="btn btn-primary btn-sm" onclick="compartirInventarioRapido()" style="margin-left:auto;">📋 Compartir stock</button>
+  </div>
   <div class="filter-bar">
     <input type="text" id="inv-buscar" placeholder="🔍 Buscar..." style="width:200px" oninput="renderInventario()" />
     <select id="inv-talla" onchange="renderInventario()">
@@ -2032,7 +2043,122 @@ function descargarPdfDetallePedido(){
   toast('PDF descargado ✓');
 }
 
-/* ===== CHAT IA ===== */
+/* ═══════════════════════════════════════
+   COMPARTIR INVENTARIO RÁPIDO
+═══════════════════════════════════════ */
+function compartirInventarioRapido(){
+  const fecha = new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+  const items = state.inventario.filter(i=>i.stock>0).sort((a,b)=>a.nombre.localeCompare(b.nombre));
+  const agotados = state.inventario.filter(i=>i.stock===0);
+
+  if(!items.length && !agotados.length){
+    toast('No hay productos en inventario','err'); return;
+  }
+
+  let txt = '';
+  txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  txt += `📦 INVENTARIO CFC STORE\n`;
+  txt += `📅 ${fecha}\n`;
+  txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
+
+  if(items.length){
+    txt += `✅ DISPONIBLES (${items.length}):\n\n`;
+    items.forEach(i=>{
+      txt += `👕 *${i.nombre}*\n`;
+      txt += `   ${i.tipo||'Camiseta'} · ${i.manga||i.version||'Corta'} · ${i.edicion||'Fan'}\n`;
+      txt += `   Talla: ${i.talla} · Stock: ${i.stock} uds.\n`;
+      if(i.precio) txt += `   Precio: $${Number(i.precio).toLocaleString('es-CO')}\n`;
+      txt += `\n`;
+    });
+  }
+
+  if(agotados.length){
+    txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+    txt += `❌ AGOTADOS (${agotados.length}):\n\n`;
+    agotados.forEach(i=>{
+      txt += `   • ${i.nombre} · ${i.talla} · ${i.edicion||'Fan'}\n`;
+    });
+    txt += `\n`;
+  }
+
+  txt += `━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+  txt += `📊 Total: ${items.length} productos disponibles\n`;
+  txt += `📦 Stock total: ${items.reduce((s,i)=>s+i.stock,0)} unidades`;
+
+  // Intentar compartir nativo (WhatsApp, etc.)
+  if(navigator.share){
+    navigator.share({
+      title: 'Inventario CFC Store',
+      text: txt
+    }).catch(()=>{
+      // Si falla, copiar al portapapeles
+      navigator.clipboard.writeText(txt).then(()=>toast('Inventario copiado ✓'));
+    });
+  } else {
+    navigator.clipboard.writeText(txt)
+      .then(()=>toast('Inventario copiado al portapapeles ✓'))
+      .catch(()=>toast('No se pudo copiar','err'));
+  }
+}
+
+/* ═══════════════════════════════════════
+   BUSCAR ACTUALIZACIÓN PWA
+═══════════════════════════════════════ */
+function buscarActualizacion(){
+  const btn = document.getElementById('btn-update');
+
+  if(!('serviceWorker' in navigator)){
+    toast('Actualizaciones no disponibles en este modo','err'); return;
+  }
+
+  // Cambiar botón a "buscando..."
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⏳ Buscando...';
+  btn.disabled = true;
+
+  navigator.serviceWorker.getRegistration().then(reg => {
+    if(!reg){
+      btn.innerHTML = originalText; btn.disabled = false;
+      toast('Service Worker no encontrado','err'); return;
+    }
+
+    // Forzar chequeo de actualización
+    reg.update().then(()=>{
+      if(reg.waiting){
+        // Hay una actualización esperando — instalarla
+        btn.innerHTML = '✅ ¡Actualización lista!';
+        toast('Nueva versión disponible — se instalará al cerrar la app');
+        reg.waiting.postMessage({type:'SKIP_WAITING'});
+        setTimeout(()=>{
+          if(confirm('✅ Actualización descargada\n\n¿Recargar ahora para aplicarla?')){
+            location.reload();
+          } else {
+            btn.innerHTML = originalText; btn.disabled = false;
+          }
+        }, 800);
+      } else if(reg.installing){
+        btn.innerHTML = '⬇️ Descargando...';
+        toast('Descargando actualización...');
+        reg.installing.addEventListener('statechange', function(){
+          if(this.state === 'installed'){
+            btn.innerHTML = '✅ Lista';
+            setTimeout(()=>{
+              if(confirm('✅ Actualización lista\n\n¿Recargar ahora?')) location.reload();
+            }, 500);
+          }
+        });
+      } else {
+        // No hay actualización
+        btn.innerHTML = '✅ Al día';
+        toast('La app ya está actualizada ✓');
+        setTimeout(()=>{ btn.innerHTML = originalText; btn.disabled = false; }, 2500);
+      }
+    }).catch(err=>{
+      btn.innerHTML = originalText; btn.disabled = false;
+      toast('Sin conexión — no se pudo verificar','err');
+    });
+  });
+}
 const chatMessages=document.getElementById('chat-messages');
 function addChatMsg(texto,tipo='bot',clase=''){
   const div=document.createElement('div');
