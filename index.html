@@ -702,144 +702,103 @@ function seedData(){
 
   <!-- ── FORMULARIO ── -->
   <div id="pc-form" class="tab-panel active">
-    <div class="grid-2" style="gap:24px;align-items:start;">
 
-      <!-- COLUMNA IZQUIERDA -->
+    <!-- DATOS DEL CLIENTE -->
+    <div class="card" style="margin-bottom:16px;">
+      <div class="card-title">👤 Datos del cliente</div>
+      <div class="form-row form-row-2">
+        <div><label>Nombre</label><input id="pc-cliente" placeholder="Ej: Juan García" oninput="actualizarPedidoPreview()" /></div>
+        <div><label>Contacto</label><input id="pc-contacto" placeholder="Tel / WhatsApp" oninput="actualizarPedidoPreview()" /></div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:4px;">
+        <div style="flex:1;"><label>Estado del pedido</label>
+          <select id="pc-estado" onchange="actualizarPedidoPreview()">
+            <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>Listo</option><option>Entregado</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-2" style="gap:20px;align-items:start;">
+
+      <!-- COLUMNA IZQUIERDA — agregar ítems -->
       <div style="display:flex;flex-direction:column;gap:16px;">
 
-        <!-- DATOS DEL CLIENTE -->
-        <div class="card">
-          <div class="card-title">👤 Datos del cliente</div>
-          <div class="form-row form-row-2">
-            <div><label>Nombre</label><input id="pc-cliente" placeholder="Ej: Juan García" oninput="actualizarPedidoPreview()" /></div>
-            <div><label>Contacto</label><input id="pc-contacto" placeholder="Tel / WhatsApp" oninput="actualizarPedidoPreview()" /></div>
-          </div>
-        </div>
+        <!-- AGREGAR ÍTEM -->
+        <div class="card" style="border-top:3px solid var(--accent2);">
+          <div class="card-title">➕ Agregar prenda al pedido</div>
 
-        <!-- DETALLES DEL PEDIDO — todo en un recuadro -->
-        <div class="card">
-          <div class="card-title">📋 Detalles del pedido</div>
-
-          <!-- Tipo -->
-          <div style="margin-bottom:16px;">
-            <label>Tipo</label>
-            <div class="toggle-group" id="pc-tipo-grupo" style="margin-top:6px;">
-              <div class="toggle-btn active" data-val="Camiseta" onclick="selectToggle('pc-tipo-grupo',this,'pc-tipo-val')">👕 Camiseta</div>
-              <div class="toggle-btn" data-val="Short" onclick="selectToggle('pc-tipo-grupo',this,'pc-tipo-val')">🩳 Short</div>
-              <div class="toggle-btn" data-val="Kids Kit" onclick="selectToggle('pc-tipo-grupo',this,'pc-tipo-val')">👶 Kids Kit</div>
-            </div>
-            <input type="hidden" id="pc-tipo-val" value="Camiseta" />
-          </div>
-
-          <hr class="sep" />
-
-          <!-- Producto desde CATÁLOGO — selector visual con fotos -->
-          <div style="margin-bottom:16px;">
-            <label>Producto del catálogo</label>
+          <!-- Selector catálogo -->
+          <div style="margin-bottom:14px;">
+            <label>Producto</label>
             <input type="hidden" id="pc-producto-sel" value="" />
-
-            <!-- Producto seleccionado (preview) -->
-            <div id="pc-prod-seleccionado" style="display:none;margin-top:8px;padding:10px 12px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:8px;display:flex;align-items:center;gap:10px;cursor:pointer;" onclick="abrirSelectorCatalogoPedido()">
-              <img id="pc-prod-foto" src="" style="width:48px;height:48px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff;" />
-              <div style="flex:1;">
-                <div id="pc-prod-nombre-sel" style="font-weight:700;font-size:13px;"></div>
+            <div id="pc-prod-seleccionado" style="display:none;margin-top:6px;padding:10px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:10px;" onclick="abrirSelectorCatalogoPedido()">
+              <img id="pc-prod-foto" src="" style="width:44px;height:44px;object-fit:contain;border-radius:6px;border:1px solid var(--border);background:#fff;flex-shrink:0;" />
+              <div style="flex:1;min-width:0;">
+                <div id="pc-prod-nombre-sel" style="font-weight:700;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
                 <div id="pc-prod-det-sel" style="font-size:11px;color:var(--muted);margin-top:1px;"></div>
               </div>
-              <div id="pc-precio-texto" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);"></div>
+              <div id="pc-precio-texto" style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--accent2);flex-shrink:0;"></div>
               <span style="font-size:11px;color:var(--muted);">✏️</span>
             </div>
-
-            <!-- Botón para abrir selector -->
             <button type="button" id="pc-btn-elegir" onclick="abrirSelectorCatalogoPedido()"
-              style="margin-top:8px;width:100%;padding:10px;border:2px dashed var(--border);border-radius:8px;background:#fff;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;"
-              onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
-              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--muted)'">
+              style="margin-top:6px;width:100%;padding:9px;border:2px dashed var(--border);border-radius:8px;background:#fff;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;">
               🗂️ Elegir del catálogo
             </button>
           </div>
 
-          <hr class="sep" />
-
-          <!-- Manga -->
-          <div style="margin-bottom:16px;">
-            <label>Manga</label>
-            <div class="toggle-group" id="pc-manga-grupo" style="margin-top:6px;">
-              <div class="toggle-btn active" data-val="Corta" onclick="selectToggle('pc-manga-grupo',this,'pc-manga-val')">Corta</div>
-              <div class="toggle-btn" data-val="Larga" onclick="selectToggle('pc-manga-grupo',this,'pc-manga-val')">Larga</div>
-              <div class="toggle-btn" data-val="N/A" onclick="selectToggle('pc-manga-grupo',this,'pc-manga-val')">N/A</div>
-            </div>
-            <input type="hidden" id="pc-manga-val" value="Corta" />
-          </div>
-
-          <hr class="sep" />
-
-          <!-- Cantidad + Estado en una fila -->
-          <div class="form-row form-row-2" style="margin-bottom:16px;">
-            <div><label>Cantidad</label><input id="pc-cantidad" type="number" min="1" value="1" oninput="actualizarPedidoPreview()" /></div>
-            <div><label>Estado</label>
-              <select id="pc-estado" onchange="actualizarPedidoPreview()">
-                <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>Listo</option><option>Entregado</option>
+          <!-- Talla + Versión + Manga + Cantidad -->
+          <div class="form-row form-row-4" style="margin-bottom:12px;">
+            <div>
+              <label>Talla</label>
+              <select id="pc-talla-sel" onchange="actualizarItemPreview()">
+                <option>Kids</option><option>XS</option><option>S</option><option selected>M</option><option>L</option><option>XL</option><option>2XL</option><option>3XL</option><option>4XL</option>
               </select>
             </div>
-          </div>
-
-          <hr class="sep" />
-
-          <!-- Versión -->
-          <div style="margin-bottom:16px;">
-            <label>Versión</label>
-            <div class="toggle-group" id="pc-version-grupo" style="margin-top:6px;">
-              <div class="toggle-btn active" data-val="Fan" onclick="selectToggle('pc-version-grupo',this,'pc-version-val')">⚽ Fan</div>
-              <div class="toggle-btn" data-val="Player" onclick="selectToggle('pc-version-grupo',this,'pc-version-val')">🏆 Player</div>
+            <div>
+              <label>Versión</label>
+              <select id="pc-version-sel" onchange="actualizarItemPreview()">
+                <option value="Fan">Fan</option><option value="Player">Player</option>
+              </select>
             </div>
-            <input type="hidden" id="pc-version-val" value="Fan" />
-          </div>
-
-          <hr class="sep" />
-
-          <!-- Talla -->
-          <div>
-            <label>Talla</label>
-            <div class="tallas-grid" id="pc-tallas-grupo" style="margin-top:8px;flex-wrap:wrap;gap:7px;">
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')" style="width:54px;font-size:11px;">Kids</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')">XS</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')">S</div>
-              <div class="talla-btn active" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')">M</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')">L</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')">XL</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')" style="width:44px;">2XL</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')" style="width:44px;">3XL</div>
-              <div class="talla-btn" onclick="selectTalla('pc-tallas-grupo',this,'pc-talla-val')" style="width:44px;">4XL</div>
+            <div>
+              <label>Manga</label>
+              <select id="pc-manga-sel" onchange="actualizarItemPreview()">
+                <option>Corta</option><option>Larga</option><option>N/A</option>
+              </select>
             </div>
-            <input type="hidden" id="pc-talla-val" value="M" />
+            <div>
+              <label>Cantidad</label>
+              <input type="number" id="pc-item-cantidad" min="1" value="1" oninput="actualizarItemPreview()" />
+            </div>
           </div>
+
+          <!-- Personalización del ítem -->
+          <div style="background:var(--surface);border-radius:8px;padding:12px;margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:10px;">✍️ Personalización <span style="font-weight:400;text-transform:none;">(+$2.500)</span></div>
+            <div class="form-row form-row-2" style="margin-bottom:0;">
+              <div><label>Nombre en prenda</label><input id="pc-nombre-prenda" placeholder="Ej: García" oninput="actualizarItemPreview()" /></div>
+              <div><label>Dorsal</label><input id="pc-numero-prenda" placeholder="Ej: 10" oninput="actualizarItemPreview()" /></div>
+            </div>
+          </div>
+
+          <!-- Preview precio ítem actual -->
+          <div id="pc-item-preview" style="display:none;padding:8px 12px;background:#fff;border:1px solid var(--border);border-radius:7px;font-size:12px;color:var(--muted);margin-bottom:12px;"></div>
+
+          <!-- Botón agregar al carrito -->
+          <button class="btn btn-primary" style="width:100%;" onclick="agregarItemCarrito()">
+            ➕ Agregar al pedido
+          </button>
         </div>
 
-        <!-- PERSONALIZACIÓN -->
-        <div class="card">
-          <div class="card-title">✍️ Personalización <span style="font-weight:400;text-transform:none;color:var(--muted);letter-spacing:0;">(opcional)</span></div>
-          <div class="form-row form-row-2">
-            <div><label>Nombre</label><input id="pc-nombre-prenda" placeholder="Ej: García" oninput="actualizarPedidoPreview()" /></div>
-            <div><label>Dorsal</label><input id="pc-numero-prenda" placeholder="Ej: 10" oninput="actualizarPedidoPreview()" /></div>
+        <!-- CARRITO -->
+        <div class="card" id="carrito-card" style="display:none;">
+          <div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">
+            <span>🛒 Ítems del pedido</span>
+            <span id="carrito-count" style="background:var(--accent);color:#fff;padding:2px 10px;border-radius:12px;font-size:11px;font-weight:800;"></span>
           </div>
-          <!-- Foto de referencia del pedido -->
-          <div style="margin-top:12px;">
-            <label>Foto de referencia <span style="font-weight:400;text-transform:none;color:var(--muted);letter-spacing:0;">(opcional — del catálogo)</span></label>
-            <div id="pc-foto-dropzone"
-              onclick="document.getElementById('pc-foto-input').click()"
-              ondragover="event.preventDefault();this.classList.add('dz-over')"
-              ondragleave="this.classList.remove('dz-over')"
-              ondrop="handlePcFotoDrop(event)"
-              style="width:100%;height:120px;border:2px dashed var(--border);border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;background:var(--surface);transition:all .15s;margin-top:6px;position:relative;">
-              <img id="pc-foto-preview" src="" alt="" style="display:none;width:100%;height:100%;object-fit:contain;border-radius:6px;" />
-              <div id="pc-foto-placeholder" style="text-align:center;color:var(--muted);font-size:12px;">
-                <div style="font-size:24px;margin-bottom:4px;">🖼️</div>
-                Click para agregar foto del producto
-              </div>
-            </div>
-            <input type="file" id="pc-foto-input" accept="image/*" style="display:none;" onchange="handlePcFotoInput(this)" />
-            <button type="button" id="pc-foto-clear" onclick="clearPcFoto()" style="display:none;margin-top:6px;" class="btn btn-ghost btn-sm">✕ Quitar foto</button>
-          </div>
+          <div id="carrito-lista"></div>
+          <div id="carrito-total" style="margin-top:12px;padding-top:12px;border-top:2px solid var(--border);font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--accent2);text-align:right;"></div>
         </div>
 
       </div>
@@ -847,22 +806,20 @@ function seedData(){
       <!-- COLUMNA DERECHA — PREVIEW -->
       <div style="display:flex;flex-direction:column;gap:16px;position:sticky;top:16px;">
         <div class="card" style="border-top:3px solid var(--accent);">
-          <div class="card-title">🧾 Vista previa del pedido</div>
-          <div class="pedido-preview" id="pc-preview" style="min-height:280px;font-family:monospace;font-size:12.5px;line-height:1.9;">Completa los datos para ver el pedido aquí...</div>
-          <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="guardarPedidoCliente()">💾 Guardar pedido</button>
+          <div class="card-title">🧾 Cotización</div>
+          <div class="pedido-preview" id="pc-preview" style="min-height:260px;font-family:monospace;font-size:12px;line-height:1.8;">Agrega ítems para ver la cotización...</div>
+          <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="guardarPedidoCliente()">💾 Guardar</button>
             <button class="btn btn-ghost" onclick="copiarPedido()">📋 Copiar</button>
-            <button class="btn btn-green btn-sm" id="pc-btn-share" onclick="compartirPedido()" style="display:none;">📤 Compartir</button>
             <button class="btn btn-ghost btn-sm" onclick="limpiarFormPedido()" style="margin-left:auto;">🗑 Limpiar</button>
           </div>
-          <!-- Share siempre visible después de guardar -->
           <div id="pc-share-box" style="display:none;margin-top:12px;padding:12px;background:#f0fafd;border:1px solid #b0e8f5;border-radius:6px;">
-            <div style="font-size:12px;font-weight:700;color:var(--accent2);margin-bottom:8px;">📤 Compartir cotización guardada:</div>
+            <div style="font-size:11px;font-weight:700;color:var(--accent2);margin-bottom:8px;">📤 Compartir cotización:</div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button class="btn btn-ghost btn-sm" onclick="copiarUltimoPedido()">📋 Copiar texto</button>
+              <button class="btn btn-ghost btn-sm" onclick="copiarUltimoPedido()">📋 Copiar</button>
               <button class="btn btn-ghost btn-sm" id="pc-share-native-btn" onclick="compartirUltimoPedidoNativo()" style="display:none;">📤 Compartir</button>
               <button class="btn btn-ghost btn-sm" onclick="whatsappUltimoPedido()">💬 WhatsApp</button>
-              <button class="btn btn-gold btn-sm" onclick="descargarPdfUltimoPedido()">🧾 Descargar PDF</button>
+              <button class="btn btn-gold btn-sm" onclick="descargarPdfUltimoPedido()">🧾 PDF</button>
             </div>
           </div>
         </div>
@@ -1653,25 +1610,176 @@ function agregarStockProgramatico(productoId,cantidad){
   return{ok:true,msg:`📦 Stock actualizado: *${p.nombre} ${p.talla}* → ${p.stock} unidades disponibles.`};
 }
 
-/* ===== PEDIDOS CLIENTES ===== */
+/* ===== PEDIDOS CLIENTES — SISTEMA DE CARRITO ===== */
+let carritoItems = [];
 let ultimoPedidoTexto = '';
 
 function onPcProductoChange(){
-  // Called after seleccionarProductoCatalogo sets the value
   const pid = document.getElementById('pc-producto-sel').value;
   const p = state.productos.find(x=>x.id===pid);
   if(p){
-    const mangaVal=p.version||'Corta';
-    document.querySelectorAll('#pc-manga-grupo .toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===mangaVal));
-    document.getElementById('pc-manga-val').value=mangaVal;
-    const edVal=p.edicion||'Fan';
-    document.querySelectorAll('#pc-version-grupo .toggle-btn').forEach(b=>b.classList.toggle('active',b.dataset.val===edVal));
-    document.getElementById('pc-version-val').value=edVal;
+    if(document.getElementById('pc-manga-sel')) document.getElementById('pc-manga-sel').value=p.version||'Corta';
+    if(document.getElementById('pc-version-sel')) document.getElementById('pc-version-sel').value=p.edicion||'Fan';
   }
+  actualizarItemPreview();
+}
+
+function actualizarItemPreview(){
+  const pid    = document.getElementById('pc-producto-sel').value;
+  const p      = state.productos.find(x=>x.id===pid);
+  const talla  = document.getElementById('pc-talla-sel')?.value||'M';
+  const vers   = document.getElementById('pc-version-sel')?.value||'Fan';
+  const nombre = document.getElementById('pc-nombre-prenda')?.value||'';
+  const dorsal = document.getElementById('pc-numero-prenda')?.value||'';
+  const cant   = parseInt(document.getElementById('pc-item-cantidad')?.value)||1;
+  const pers   = !!(nombre||dorsal);
+  const prev   = document.getElementById('pc-item-preview');
+  if(!p||!prev){ actualizarPedidoPreview(); return; }
+  const precioUnit = (p.precio||0)+(pers?2500:0);
+  const subtotal   = precioUnit*cant;
+  prev.style.display='block';
+  prev.innerHTML=`
+    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">
+      <div>
+        <span style="font-weight:700;">${p.nombre}</span>
+        <span style="color:var(--muted);font-size:11px;"> · ${talla} · ${vers}${pers?` · ✍️ ${nombre||''}${dorsal?' #'+dorsal:''}`:''}${cant>1?` · ${cant} uds.`:''}</span>
+      </div>
+      <span style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--accent2);">$${subtotal.toLocaleString('es-CO')}</span>
+    </div>
+    ${pers?`<div style="font-size:10px;color:var(--muted);margin-top:3px;">$${(p.precio||0).toLocaleString('es-CO')} base${cant>1?` × ${cant}`:''}  +  $${(2500*cant).toLocaleString('es-CO')} estampado${cant>1?` (${cant} × $2.500)`:''}</div>`:''}`;
   actualizarPedidoPreview();
 }
 
-/* ── SELECTOR VISUAL DEL CATÁLOGO PARA PEDIDOS ── */
+function agregarItemCarrito(){
+  const pid   = document.getElementById('pc-producto-sel').value;
+  const p     = state.productos.find(x=>x.id===pid);
+  if(!p){ toast('Selecciona un producto del catálogo','err'); return; }
+  const talla  = document.getElementById('pc-talla-sel').value;
+  const version= document.getElementById('pc-version-sel').value;
+  const manga  = document.getElementById('pc-manga-sel').value;
+  const nombre = document.getElementById('pc-nombre-prenda').value.trim();
+  const dorsal = document.getElementById('pc-numero-prenda').value.trim();
+  const cant   = parseInt(document.getElementById('pc-item-cantidad')?.value)||1;
+  const pers   = !!(nombre||dorsal);
+  const precioUnit = (p.precio||0)+(pers?2500:0);
+  const precio     = precioUnit*cant;
+
+  carritoItems.push({
+    id:uid(), productoId:pid, nombre:p.nombre, foto:p.foto||'',
+    tipo:p.tipo||'Camiseta', talla, version, manga,
+    cantidad:cant, precioUnit, precioBase:p.precio||0,
+    precio, personalizacion:pers, nombrePrenda:nombre, dorsal
+  });
+
+  // Reset form for next item
+  document.getElementById('pc-producto-sel').value='';
+  document.getElementById('pc-prod-seleccionado').style.display='none';
+  document.getElementById('pc-btn-elegir').textContent='🗂️ Elegir del catálogo';
+  document.getElementById('pc-nombre-prenda').value='';
+  document.getElementById('pc-numero-prenda').value='';
+  document.getElementById('pc-talla-sel').value='M';
+  document.getElementById('pc-version-sel').value='Fan';
+  document.getElementById('pc-manga-sel').value='Corta';
+  if(document.getElementById('pc-item-cantidad')) document.getElementById('pc-item-cantidad').value='1';
+  document.getElementById('pc-item-preview').style.display='none';
+
+  renderCarrito(); actualizarPedidoPreview();
+  toast(`✅ ${p.nombre} (${talla}${cant>1?' × '+cant:''}) agregado`);
+}
+
+function renderCarrito(){
+  const card   = document.getElementById('carrito-card');
+  const lista  = document.getElementById('carrito-lista');
+  const count  = document.getElementById('carrito-count');
+  const totalEl= document.getElementById('carrito-total');
+  if(!carritoItems.length){ if(card)card.style.display='none'; return; }
+  if(card) card.style.display='block';
+  const totalUds = carritoItems.reduce((s,i)=>s+(i.cantidad||1),0);
+  count.textContent = totalUds+(totalUds===1?' prenda':' prendas');
+  const total = carritoItems.reduce((s,i)=>s+i.precio,0);
+  lista.innerHTML = carritoItems.map((item,idx)=>`
+    <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <!-- Mini foto -->
+      <div style="width:40px;height:40px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;">
+        ${item.foto?`<img src="${item.foto}" style="width:100%;height:100%;object-fit:contain;">`:'<span style="font-size:18px;opacity:.3;">👕</span>'}
+      </div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:700;font-size:13px;">${item.nombre}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px;">
+          ${item.talla} · ${item.version} · Manga ${item.manga}
+          ${item.cantidad>1?` · <b>${item.cantidad} uds.</b>`:''}
+        </div>
+        ${item.personalizacion?`
+        <div style="font-size:11px;color:var(--purple);margin-top:2px;font-weight:600;">
+          ✍️ ${item.nombrePrenda||''}${item.dorsal?' #'+item.dorsal:''}
+          <span style="color:var(--muted);font-weight:400;"> (+$${(2500*(item.cantidad||1)).toLocaleString('es-CO')})</span>
+        </div>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;color:var(--accent2);">$${item.precio.toLocaleString('es-CO')}</div>
+        ${item.cantidad>1?`<div style="font-size:10px;color:var(--muted);">$${item.precioUnit.toLocaleString('es-CO')} c/u</div>`:''}
+      </div>
+      <button onclick="quitarItemCarrito('${item.id}')" style="background:none;border:none;cursor:pointer;font-size:16px;color:var(--muted);padding:0;flex-shrink:0;">✕</button>
+    </div>`).join('');
+  totalEl.innerHTML='TOTAL: <span style="color:var(--accent);">$'+total.toLocaleString('es-CO')+'</span>';
+}
+
+function buildTextoPreview(){
+  const cliente  = document.getElementById('pc-cliente')?.value||'';
+  const contacto = document.getElementById('pc-contacto')?.value||'';
+  const estado   = document.getElementById('pc-estado')?.value||'Encargado';
+  const fecha    = new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+  if(!carritoItems.length) return 'Agrega prendas al pedido para ver la cotización...';
+  const totalUds = carritoItems.reduce((s,i)=>s+(i.cantidad||1),0);
+  const total    = carritoItems.reduce((s,i)=>s+i.precio,0);
+  const L = '━'.repeat(28);
+  let txt='';
+  txt+=L+'\n';
+  txt+='  🏆 CFC STORE — COTIZACIÓN\n';
+  txt+=L+'\n';
+  txt+='📅 Fecha: '+fecha+'\n';
+  if(cliente)  txt+='👤 Cliente: '+cliente+'\n';
+  if(contacto) txt+='📞 Tel:     '+contacto+'\n';
+  txt+=L+'\n\n';
+
+  carritoItems.forEach((item,i)=>{
+    const cant = item.cantidad||1;
+    txt+='【'+(i+1)+'/'+carritoItems.length+'】 '+item.nombre+'\n';
+    txt+='  📐 Talla:   '+item.talla+'\n';
+    txt+='  👕 Tipo:    '+item.tipo+' · Manga '+item.manga+'\n';
+    txt+='  ⭐ Versión: '+item.version+'\n';
+    if(cant>1) txt+='  📦 Cant.:   '+cant+' unidades\n';
+
+    if(item.personalizacion){
+      txt+='  ✍️ Estampado:\n';
+      if(item.nombrePrenda) txt+='     Nombre: '+item.nombrePrenda+'\n';
+      if(item.dorsal)       txt+='     Dorsal: #'+item.dorsal+'\n';
+    }
+
+    // Desglose precio
+    txt+='  ─────────────────────────\n';
+    if(item.precioBase>0){
+      if(cant>1) txt+='  Precio unit:  $'+item.precioBase.toLocaleString('es-CO')+' × '+cant+'\n';
+      else       txt+='  Precio:       $'+item.precioBase.toLocaleString('es-CO')+'\n';
+    }
+    if(item.personalizacion){
+      txt+='  Estampado:    $'+(2500*cant).toLocaleString('es-CO')+(cant>1?' ('+cant+'×$2.500)':'')+'\n';
+    }
+    txt+='  💰 Subtotal:  $'+item.precio.toLocaleString('es-CO')+'\n';
+    if(i<carritoItems.length-1) txt+='\n';
+  });
+
+  txt+='\n'+L+'\n';
+  if(totalUds>1) txt+='📦 '+totalUds+' prendas en total\n';
+  txt+='💵 TOTAL: $'+total.toLocaleString('es-CO')+'\n';
+  txt+='📋 Estado: '+estado+'\n';
+  txt+=L;
+  return txt;
+}
+function quitarItemCarrito(id){
+  carritoItems=carritoItems.filter(i=>i.id!==id);
+  renderCarrito(); actualizarPedidoPreview();
+}
 function abrirSelectorCatalogoPedido(){
   document.getElementById('sel-cat-buscar').value='';
   renderSelectorCatalogo();
@@ -1738,190 +1846,109 @@ function seleccionarProductoCatalogo(pid){
 }
 
 function buildTextoPreview(){
-  const cliente     = document.getElementById('pc-cliente')?.value||'';
-  const contacto    = document.getElementById('pc-contacto')?.value||'';
-  const tipo        = document.getElementById('pc-tipo-val')?.value||'Camiseta';
-  const productoSel = document.getElementById('pc-producto-sel')?.value||'';
-  const manga       = document.getElementById('pc-manga-val')?.value||'Corta';
-  const cantidad    = parseInt(document.getElementById('pc-cantidad')?.value)||1;
-  const estado      = document.getElementById('pc-estado')?.value||'Encargado';
-  const version     = document.getElementById('pc-version-val')?.value||'Fan';
-  const talla       = document.getElementById('pc-talla-val')?.value||'—';
-  const nombrePrenda= document.getElementById('pc-nombre-prenda')?.value||'';
-  const dorsal      = document.getElementById('pc-numero-prenda')?.value||'';
-
-  // Buscar producto en catálogo primero, luego en inventario
-  const productoObj = state.productos.find(p=>p.id===productoSel)
-                   || state.inventario.find(i=>i.id===productoSel);
-  const nombreProd  = productoObj ? productoObj.nombre : '';
-  const precioUnit  = productoObj ? (productoObj.precio||0) : 0;
-  const tienePersonalizacion = !!(nombrePrenda||dorsal);
-  const costoPersonalizacion = tienePersonalizacion ? 2500 : 0;
-  const subtotal    = precioUnit * cantidad;
-  const total       = subtotal + costoPersonalizacion;
-
+  const cliente  = document.getElementById('pc-cliente')?.value||'';
+  const contacto = document.getElementById('pc-contacto')?.value||'';
+  const estado   = document.getElementById('pc-estado')?.value||'Encargado';
+  const fecha    = new Date().toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+  if(!carritoItems.length) return 'Agrega prendas al pedido para ver la cotización...';
+  const total = carritoItems.reduce((s,i)=>s+i.precio,0);
+  const L = '━'.repeat(30);
   let txt='';
-  txt+=`━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  txt+=`🧾 COTIZACIÓN — CFC STORE\n`;
-  txt+=`━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  if(cliente)  txt+=`👤 Cliente:   ${cliente}\n`;
-  if(contacto) txt+=`📞 Contacto:  ${contacto}\n`;
-  if(cliente||contacto) txt+=`\n`;
-  txt+=`👕 Tipo:      ${tipo}\n`;
-  if(nombreProd) txt+=`🏷  Producto:  ${nombreProd}\n`;
-  txt+=`🧶 Manga:     ${manga}\n`;
-  txt+=`⭐ Versión:   ${version}\n`;
-  txt+=`📐 Talla:     ${talla}\n`;
-  txt+=`📦 Cantidad:  ${cantidad} ud${cantidad!==1?'s':''}.\n`;
-  txt+=`\n`;
-
-  // Desglose de precios
-  txt+=`💰 DESGLOSE:\n`;
-  if(precioUnit>0){
-    txt+=`   Precio unit:  $${precioUnit.toLocaleString('es-CO')}\n`;
-    if(cantidad>1)
-      txt+=`   Subtotal:     $${subtotal.toLocaleString('es-CO')}\n`;
-  }
-  if(tienePersonalizacion){
-    txt+=`✍️  Personalización:\n`;
-    if(nombrePrenda) txt+=`   Nombre:       ${nombrePrenda}\n`;
-    if(dorsal)       txt+=`   Dorsal:       #${dorsal}\n`;
-    txt+=`   Costo estamp: $${costoPersonalizacion.toLocaleString('es-CO')}\n`;
-  }
-  if(precioUnit>0){
-    txt+=`\n`;
-    txt+=`💵 TOTAL:     $${total.toLocaleString('es-CO')}\n`;
-  }
-  txt+=`\n`;
-  txt+=`📋 Estado:    ${estado}\n`;
-  txt+=`\n━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+  txt+=L+'\n';
+  txt+='🏆 CFC STORE — COTIZACIÓN\n';
+  txt+='📅 '+fecha+'\n';
+  txt+=L+'\n\n';
+  if(cliente)  txt+='👤 Cliente:  '+cliente+'\n';
+  if(contacto) txt+='📞 Contacto: '+contacto+'\n';
+  if(cliente||contacto) txt+='\n';
+  txt+='📦 DETALLE DEL PEDIDO:\n\n';
+  carritoItems.forEach((item,i)=>{
+    txt+=(i+1)+'. *'+item.nombre+'*\n';
+    txt+='   '+item.tipo+' · Manga '+item.manga+' · '+item.version+'\n';
+    txt+='   Talla: '+item.talla+'\n';
+    if(item.personalizacion){
+      txt+='   ✍️ Personalización:\n';
+      if(item.nombrePrenda) txt+='      Nombre:  '+item.nombrePrenda+'\n';
+      if(item.dorsal)       txt+='      Dorsal:  #'+item.dorsal+'\n';
+      txt+='   Base: $'+item.precioBase.toLocaleString('es-CO')+' + Estampado: $2.500\n';
+    }
+    txt+='   💰 *$'+item.precio.toLocaleString('es-CO')+'*\n';
+    if(i<carritoItems.length-1) txt+='\n';
+  });
+  txt+='\n'+L+'\n';
+  txt+='💵 *TOTAL: $'+total.toLocaleString('es-CO')+'*\n';
+  txt+='📋 Estado: '+estado+'\n'+L;
   return txt;
 }
 
 function actualizarPedidoPreview(){
-  const txt=buildTextoPreview();
   const pre=document.getElementById('pc-preview');
-  if(pre) pre.textContent=txt;
+  if(pre) pre.textContent=buildTextoPreview();
 }
 
 function guardarPedidoCliente(){
-  const cliente  = document.getElementById('pc-cliente').value.trim();
-  const talla    = document.getElementById('pc-talla-val').value;
-  const cantidad = parseInt(document.getElementById('pc-cantidad').value);
-  const productoSel = document.getElementById('pc-producto-sel').value;
-
-  if(!cliente||!talla||isNaN(cantidad)||cantidad<1){
-    toast('Completa al menos: nombre del cliente, talla y cantidad','err'); return;
-  }
-
-  const productoObj = state.productos.find(p=>p.id===productoSel);
-  const txtPedido   = buildTextoPreview();
-
-  const fotoRefEl=document.getElementById('pc-foto-preview');
-  const fotoReferencia=(fotoRefEl&&fotoRefEl.style.display!=='none'&&fotoRefEl.src)?fotoRefEl.src:'';
-
+  const cliente=document.getElementById('pc-cliente').value.trim();
+  if(!cliente){ toast('Ingresa el nombre del cliente','err'); return; }
+  if(!carritoItems.length){ toast('Agrega al menos una prenda','err'); return; }
+  const txtPedido=buildTextoPreview();
+  const total=carritoItems.reduce((s,i)=>s+i.precio,0);
   const pedido={
-    id:uid(),
-    fecha:new Date().toISOString(),
-    cliente,
-    contacto:  document.getElementById('pc-contacto').value.trim(),
-    tipo:      document.getElementById('pc-tipo-val').value,
-    productoId:productoSel||'',
-    diseno:    productoObj?.nombre||'',
-    manga:     document.getElementById('pc-manga-val').value,
-    cantidad,
-    version:   document.getElementById('pc-version-val').value,
-    talla,
-    nombrePrenda:document.getElementById('pc-nombre-prenda').value.trim(),
-    numeroPrenda:document.getElementById('pc-numero-prenda').value.trim(),
-    estado:    document.getElementById('pc-estado').value,
-    textoCompleto: txtPedido,
-    fotoReferencia,
+    id:uid(), fecha:new Date().toISOString(), cliente,
+    contacto:document.getElementById('pc-contacto').value.trim(),
+    estado:document.getElementById('pc-estado').value,
+    items:[...carritoItems], total, textoCompleto:txtPedido,
+    tipo:carritoItems[0]?.tipo||'',
+    talla:carritoItems.map(i=>i.talla).join(', '),
+    version:carritoItems[0]?.version||'Fan',
+    manga:carritoItems[0]?.manga||'Corta',
+    diseno:carritoItems.map(i=>i.nombre).join(', '),
+    cantidad:carritoItems.length,
+    nombrePrenda:carritoItems.filter(i=>i.nombrePrenda).map(i=>i.nombrePrenda).join(', '),
+    numeroPrenda:carritoItems.filter(i=>i.dorsal).map(i=>i.dorsal).join(', '),
   };
-
   state.pedidosClientes.push(pedido);
   guardarDatos(); renderDashboard();
-  toast(`✅ Pedido guardado — ${cliente}`);
-
-  // Guardar texto para compartir y mostrar caja de compartir
-  ultimoPedidoTexto = txtPedido;
-  const shareBox = document.getElementById('pc-share-box');
+  toast('✅ Pedido guardado — '+cliente);
+  ultimoPedidoTexto=txtPedido;
+  const shareBox=document.getElementById('pc-share-box');
   if(shareBox) shareBox.style.display='block';
-  if(navigator.share) document.getElementById('pc-share-native-btn').style.display='inline-flex';
+  if(navigator.share){ const nb=document.getElementById('pc-share-native-btn'); if(nb)nb.style.display='inline-flex'; }
 }
 
 function limpiarFormPedido(){
-  ['pc-cliente','pc-contacto','pc-nombre-prenda','pc-numero-prenda'].forEach(id=>{
-    const el=document.getElementById(id); if(el)el.value='';
-  });
-  document.getElementById('pc-cantidad').value='1';
+  ['pc-cliente','pc-contacto','pc-nombre-prenda','pc-numero-prenda'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('pc-estado').value='Encargado';
   document.getElementById('pc-producto-sel').value='';
   const sel=document.getElementById('pc-prod-seleccionado');
   const btn=document.getElementById('pc-btn-elegir');
-  if(sel) sel.style.display='none';
-  if(btn) btn.textContent='🗂️ Elegir del catálogo';
-  // Reset toggles
-  document.querySelectorAll('#pc-tipo-grupo .toggle-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  document.getElementById('pc-tipo-val').value='Camiseta';
-  document.querySelectorAll('#pc-manga-grupo .toggle-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  document.getElementById('pc-manga-val').value='Corta';
-  document.querySelectorAll('#pc-version-grupo .toggle-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
-  document.getElementById('pc-version-val').value='Fan';
-  document.querySelectorAll('#pc-tallas-grupo .talla-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()==='M'));
-  document.getElementById('pc-talla-val').value='M';
-  const shareBox=document.getElementById('pc-share-box'); if(shareBox)shareBox.style.display='none';
-  clearPcFoto();
+  if(sel)sel.style.display='none';
+  if(btn)btn.textContent='🗂️ Elegir del catálogo';
+  if(document.getElementById('pc-talla-sel'))document.getElementById('pc-talla-sel').value='M';
+  if(document.getElementById('pc-version-sel'))document.getElementById('pc-version-sel').value='Fan';
+  if(document.getElementById('pc-manga-sel'))document.getElementById('pc-manga-sel').value='Corta';
+  carritoItems=[];
+  renderCarrito();
+  const shareBox=document.getElementById('pc-share-box');if(shareBox)shareBox.style.display='none';
+  const prev=document.getElementById('pc-item-preview');if(prev)prev.style.display='none';
   actualizarPedidoPreview();
 }
 
-function copiarPedido(){
-  const txt=document.getElementById('pc-preview').textContent;
-  navigator.clipboard.writeText(txt).then(()=>toast('Pedido copiado al portapapeles ✓')).catch(()=>toast('No se pudo copiar','err'));
-}
-function copiarUltimoPedido(){
-  navigator.clipboard.writeText(ultimoPedidoTexto||document.getElementById('pc-preview').textContent)
-    .then(()=>toast('Pedido copiado ✓')).catch(()=>toast('No se pudo copiar','err'));
-}
+function copiarPedido(){ navigator.clipboard.writeText(buildTextoPreview()).then(()=>toast('Copiado ✓')).catch(()=>toast('Error','err')); }
+function copiarUltimoPedido(){ navigator.clipboard.writeText(ultimoPedidoTexto||buildTextoPreview()).then(()=>toast('Copiado ✓')).catch(()=>toast('Error','err')); }
 async function compartirUltimoPedidoNativo(){
-  const txt=ultimoPedidoTexto||document.getElementById('pc-preview').textContent;
-  try{ await navigator.share({title:'Pedido CFC Store',text:txt}); }
+  try{ await navigator.share({title:'Cotización CFC Store',text:ultimoPedidoTexto||buildTextoPreview()}); }
   catch(e){ copiarUltimoPedido(); }
 }
-function whatsappUltimoPedido(){
-  const txt=ultimoPedidoTexto||document.getElementById('pc-preview').textContent;
-  const url=`https://wa.me/?text=${encodeURIComponent(txt)}`;
-  window.open(url,'_blank');
-}
+function whatsappUltimoPedido(){ window.open('https://wa.me/?text='+encodeURIComponent(ultimoPedidoTexto||buildTextoPreview()),'_blank'); }
 function compartirPedido(){ compartirUltimoPedidoNativo(); }
 
-/* helper para compartir desde historial */
 function generarTextoPedidoGuardado(p){
-  const productoObj = p.productoId ? state.productos.find(x=>x.id===p.productoId) : null;
-  let txt='';
-  txt+=`━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
-  txt+=`🧾 PEDIDO — CFC STORE\n`;
-  txt+=`━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n`;
-  txt+=`👤 Cliente:   ${p.cliente}\n`;
-  if(p.contacto) txt+=`📞 Contacto:  ${p.contacto}\n`;
-  txt+=`\n`;
-  txt+=`👕 Tipo:      ${p.tipo||'—'}\n`;
-  if(p.diseno||productoObj) txt+=`🏷  Producto:  ${p.diseno||productoObj?.nombre||'—'}\n`;
-  txt+=`🧶 Manga:     ${p.manga||p.version||'—'}\n`;
-  txt+=`📦 Cantidad:  ${p.cantidad} ud${p.cantidad!==1?'s.':'.'}  \n`;
-  txt+=`⭐ Versión:   ${p.version||'Fan'}\n`;
-  txt+=`📐 Talla:     ${p.talla}\n`;
-  txt+=`\n`;
-  if(p.nombrePrenda||p.numeroPrenda){
-    txt+=`✍️  Personalización:\n`;
-    if(p.nombrePrenda) txt+=`   Nombre:  ${p.nombrePrenda}\n`;
-    if(p.numeroPrenda) txt+=`   Dorsal:  #${p.numeroPrenda}\n`;
-    txt+=`\n`;
-  }
-  txt+=`📋 Estado:    ${p.estado}\n`;
-  txt+=`\n━━━━━━━━━━━━━━━━━━━━━━━━━━`;
-  return txt;
+  if(p.textoCompleto) return p.textoCompleto;
+  const fecha=new Date(p.fecha).toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
+  return '━'.repeat(30)+'\n🏆 CFC STORE — COTIZACIÓN\n📅 '+fecha+'\n'+'━'.repeat(30)+'\n\n👤 '+p.cliente+'\n\n'+
+    (p.diseno||'—')+' · '+(p.talla||'—')+'\n\n💵 TOTAL: $'+(p.total||0).toLocaleString('es-CO')+'\n📋 Estado: '+p.estado;
 }
+
 function copiarPedidoGuardado(id){
   const p=state.pedidosClientes.find(x=>x.id===id);
   if(!p)return;
@@ -2107,132 +2134,118 @@ async function compartirDetallePedido(){
 ════════════════════════════════════════ */
 function generarPdfDesdeDatos(pedido, textoCompleto){
   const { jsPDF } = window.jspdf;
-  const doc = new jsPDF({ unit:'pt', format:'a4' });
-  const pageW = doc.internal.pageSize.getWidth();
-  let y = 50;
+  const doc  = new jsPDF({ unit:'pt', format:'a4' });
+  const pageW= doc.internal.pageSize.getWidth();
+  const pageH= doc.internal.pageSize.getHeight();
+  let y = 0;
 
-  // ── Header con franja verde ──
+  /* ── HEADER ── */
   doc.setFillColor(3,16,10);
-  doc.rect(0,0,pageW,90,'F');
+  doc.rect(0,0,pageW,88,'F');
   doc.setFillColor(34,197,94);
-  doc.rect(0,87,pageW,3,'F');
+  doc.rect(0,85,pageW,3,'F');
 
+  doc.setFont('helvetica','bold'); doc.setFontSize(22);
   doc.setTextColor(255,255,255);
-  doc.setFont('helvetica','bold');
-  doc.setFontSize(22);
-  doc.text('CFC STORE MANAGER', 40, 45);
-  doc.setFontSize(10);
-  doc.setTextColor(34,197,94);
-  doc.text('COTIZACIÓN / COMPROBANTE DE PEDIDO', 40, 65);
+  doc.text('CFC STORE MANAGER', 40, 42);
+  doc.setFontSize(9); doc.setTextColor(34,197,94);
+  doc.text('COTIZACIÓN DE PEDIDO', 40, 60);
 
-  doc.setTextColor(180,180,180);
-  doc.setFontSize(9);
+  doc.setFontSize(9); doc.setTextColor(180,180,180);
   const fechaStr = new Date(pedido.fecha||Date.now()).toLocaleDateString('es-CO',{day:'2-digit',month:'long',year:'numeric'});
-  doc.text(fechaStr, pageW-40, 45, {align:'right'});
-  doc.text('Folio: '+(pedido.id||uid()).slice(-8).toUpperCase(), pageW-40, 60, {align:'right'});
+  doc.text(fechaStr, pageW-40, 42, {align:'right'});
+  doc.text('Folio: '+(pedido.id||uid()).slice(-8).toUpperCase(), pageW-40, 56, {align:'right'});
 
-  y = 120;
-  doc.setTextColor(20,20,20);
+  y = 110;
 
-  // ── Datos del cliente ──
-  doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.setTextColor(34,150,80);
-  doc.text('DATOS DEL CLIENTE', 40, y); y+=18;
-  doc.setDrawColor(220,220,220); doc.line(40,y-12,pageW-40,y-12);
+  /* ── CLIENTE ── */
+  doc.setFillColor(248,250,252); doc.rect(40,y-14,pageW-80,50,'F');
+  doc.setDrawColor(220,220,220); doc.rect(40,y-14,pageW-80,50,'S');
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(21,128,61);
+  doc.text('CLIENTE', 52, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(30,30,30);
+  doc.text(pedido.cliente||'—', 52, y+16);
+  if(pedido.contacto){ doc.setFontSize(9); doc.setTextColor(100,100,100); doc.text('📞 '+pedido.contacto, 52, y+30); }
+  y += 64;
 
-  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
-  doc.text(`Cliente:   ${pedido.cliente||'—'}`, 40, y); y+=16;
-  if(pedido.contacto){ doc.text(`Contacto:  ${pedido.contacto}`, 40, y); y+=16; }
-  y+=10;
+  /* ── ÍTEMS ── */
+  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(21,128,61);
+  doc.text('DETALLE DEL PEDIDO', 40, y); y+=6;
+  doc.setDrawColor(34,197,94); doc.setLineWidth(1.5); doc.line(40,y,pageW-40,y); y+=14;
 
-  // ── Detalles del pedido ──
-  doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(34,150,80);
-  doc.text('DETALLE DEL PEDIDO', 40, y); y+=18;
-  doc.setDrawColor(220,220,220); doc.line(40,y-12,pageW-40,y-12);
+  const items = pedido.items || [{
+    nombre:pedido.diseno||'—', tipo:pedido.tipo||'—', talla:pedido.talla||'—',
+    version:pedido.version||'Fan', manga:pedido.manga||'—',
+    cantidad:pedido.cantidad||1, precioBase:0, precio:pedido.total||0,
+    personalizacion:!!(pedido.nombrePrenda||pedido.numeroPrenda),
+    nombrePrenda:pedido.nombrePrenda||'', dorsal:pedido.numeroPrenda||''
+  }];
 
-  doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
-  const productoObj = pedido.productoId ? (state.productos.find(x=>x.id===pedido.productoId)||state.inventario.find(x=>x.id===pedido.productoId)) : null;
-  const filas = [
-    ['Tipo de prenda', pedido.tipo||'—'],
-    ['Producto / Diseño', pedido.diseno || productoObj?.nombre || '—'],
-    ['Manga', pedido.manga||'—'],
-    ['Versión', pedido.version||'Fan'],
-    ['Talla', pedido.talla||'—'],
-    ['Cantidad', String(pedido.cantidad||1)],
-  ];
-  filas.forEach(([label,val])=>{
-    doc.setFont('helvetica','bold'); doc.text(label+':', 40, y);
-    doc.setFont('helvetica','normal'); doc.text(String(val), 200, y);
-    y+=16;
+  items.forEach((item,idx)=>{
+    const cant = item.cantidad||1;
+    // Check page break
+    if(y > pageH-120){ doc.addPage(); y=40; }
+
+    // Ítem header
+    doc.setFillColor(idx%2===0?250:245, idx%2===0?253:250, idx%2===0?250:248);
+    doc.rect(40,y-12,pageW-80,14,'F');
+    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(20,20,20);
+    doc.text((idx+1)+'. '+item.nombre, 46, y);
+    y += 16;
+
+    // Detalles en 2 columnas
+    doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,60);
+    const col2 = pageW/2;
+    doc.text('Tipo:       '+(item.tipo||'—'), 52, y);
+    doc.text('Talla:      '+(item.talla||'—'), col2, y); y+=14;
+    doc.text('Manga:      '+(item.manga||'—'), 52, y);
+    doc.text('Versión:    '+(item.version||'Fan'), col2, y); y+=14;
+    if(cant>1){ doc.text('Cantidad:   '+cant+' unidades', 52, y); y+=14; }
+
+    // Personalización
+    if(item.personalizacion){
+      doc.setTextColor(109,40,217); doc.setFont('helvetica','bold');
+      doc.text('✍ Personalización:', 52, y); y+=12;
+      doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+      if(item.nombrePrenda) { doc.text('   Nombre: '+item.nombrePrenda, 52, y); y+=12; }
+      if(item.dorsal)       { doc.text('   Dorsal: #'+item.dorsal, 52, y); y+=12; }
+    }
+
+    // Precio del ítem
+    doc.setTextColor(20,20,20); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    if(item.precioBase>0){
+      doc.text('Precio base: $'+item.precioBase.toLocaleString('es-CO')+(cant>1?' × '+cant:''), 52, y); y+=12;
+      if(item.personalizacion){ doc.text('Estampado:   $'+(2500*cant).toLocaleString('es-CO'), 52, y); y+=12; }
+    }
+    doc.setFont('helvetica','bold'); doc.setTextColor(21,128,61);
+    doc.text('Subtotal: $'+item.precio.toLocaleString('es-CO'), pageW-46, y, {align:'right'});
+    doc.setFont('helvetica','normal'); doc.setTextColor(20,20,20);
+
+    // Separator
+    doc.setDrawColor(220,220,220); doc.setLineWidth(0.5); doc.line(52,y+6,pageW-52,y+6);
+    y += 20;
   });
-  y+=6;
 
-  // ── Personalización ──
-  const tienePers = pedido.nombrePrenda || pedido.numeroPrenda;
-  if(tienePers){
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(34,150,80);
-    doc.text('PERSONALIZACIÓN', 40, y); y+=18;
-    doc.setDrawColor(220,220,220); doc.line(40,y-12,pageW-40,y-12);
-    doc.setFont('helvetica','normal'); doc.setFontSize(11); doc.setTextColor(40,40,40);
-    if(pedido.nombrePrenda){ doc.text(`Nombre:  ${pedido.nombrePrenda}`, 40, y); y+=16; }
-    if(pedido.numeroPrenda){ doc.text(`Dorsal:  #${pedido.numeroPrenda}`, 40, y); y+=16; }
-    y+=6;
-  }
+  /* ── TOTAL ── */
+  if(y > pageH-80){ doc.addPage(); y=40; }
+  const total = pedido.total || items.reduce((s,i)=>s+i.precio,0);
+  const totalUds = items.reduce((s,i)=>s+(i.cantidad||1),0);
 
-  // ── Foto referencia ──
-  if(pedido.fotoReferencia){
-    try{
-      doc.addImage(pedido.fotoReferencia, 'JPEG', 40, y, 120, 120, undefined, 'FAST');
-      y += 132;
-    }catch(e){ /* ignore image errors */ }
-  }
+  y += 4;
+  doc.setFillColor(240,253,244); doc.setDrawColor(187,247,208);
+  doc.roundedRect(40,y,pageW-80,50,6,6,'FD');
+  doc.setFont('helvetica','normal'); doc.setFontSize(10); doc.setTextColor(60,60,60);
+  doc.text(totalUds+' '+(totalUds===1?'prenda':'prendas')+' en total', 56, y+18);
+  doc.text('Estado: '+(pedido.estado||'Encargado'), 56, y+34);
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(21,128,61);
+  doc.text('TOTAL  $'+total.toLocaleString('es-CO'), pageW-56, y+30, {align:'right'});
+  y += 64;
 
-  // ── Desglose de precios ──
-  const precioUnit = productoObj ? (productoObj.precio||0) : 0;
-  const cantidad   = parseInt(pedido.cantidad)||1;
-  const costoPers  = tienePers ? 2500 : 0;
-  const subtotal   = precioUnit * cantidad;
-  const total      = subtotal + costoPers;
-
-  if(precioUnit>0 || costoPers>0){
-    y+=4;
-    doc.setFillColor(240,253,244);
-    doc.setDrawColor(187,247,208);
-    doc.roundedRect(40, y, pageW-80, (costoPers>0?96:72), 6, 6, 'FD');
-    y+=24;
-    doc.setFont('helvetica','bold'); doc.setFontSize(11); doc.setTextColor(21,128,61);
-    doc.text('DESGLOSE DE PRECIOS', 56, y); y+=20;
-
-    doc.setFont('helvetica','normal'); doc.setFontSize(10.5); doc.setTextColor(40,40,40);
-    if(precioUnit>0){
-      doc.text(`Precio unitario (${cantidad} ud${cantidad!==1?'s':''})`, 56, y);
-      doc.text(`$${subtotal.toLocaleString('es-CO')}`, pageW-56, y, {align:'right'});
-      y+=18;
-    }
-    if(costoPers>0){
-      doc.text('Costo de personalización', 56, y);
-      doc.text(`$${costoPers.toLocaleString('es-CO')}`, pageW-56, y, {align:'right'});
-      y+=18;
-    }
-    doc.setDrawColor(187,247,208); doc.line(56,y-4,pageW-56,y-4);
-    doc.setFont('helvetica','bold'); doc.setFontSize(13); doc.setTextColor(21,128,61);
-    doc.text('TOTAL', 56, y+12);
-    doc.text(`$${total.toLocaleString('es-CO')}`, pageW-56, y+12, {align:'right'});
-    y+=34;
-  }
-
-  // ── Estado ──
-  y+=10;
-  doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(100,100,100);
-  doc.text('Estado del pedido: ', 40, y);
-  doc.setTextColor(34,150,80);
-  doc.text(pedido.estado||'Encargado', 130, y);
-
-  // ── Footer ──
-  const footY = doc.internal.pageSize.getHeight()-40;
-  doc.setDrawColor(220,220,220); doc.line(40,footY-14,pageW-40,footY-14);
-  doc.setFont('helvetica','italic'); doc.setFontSize(8.5); doc.setTextColor(140,140,140);
-  doc.text('Este documento es una cotización generada por CFC Store Manager y no constituye una factura fiscal.', 40, footY);
+  /* ── FOOTER ── */
+  const footY = pageH-28;
+  doc.setDrawColor(220,220,220); doc.line(40,footY-10,pageW-40,footY-10);
+  doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(150,150,150);
+  doc.text('Cotización generada por CFC Store Manager · No constituye factura fiscal.', pageW/2, footY, {align:'center'});
 
   return doc;
 }
