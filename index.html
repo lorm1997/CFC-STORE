@@ -713,7 +713,7 @@ function seedData(){
       <div style="display:flex;gap:10px;margin-top:4px;">
         <div style="flex:1;"><label>Estado del pedido</label>
           <select id="pc-estado" onchange="actualizarPedidoPreview()">
-            <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>Listo</option><option>Entregado</option>
+            <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>En Tránsito</option><option>Listo</option><option>Entregado</option>
           </select>
         </div>
       </div>
@@ -833,7 +833,7 @@ function seedData(){
     <div class="filter-bar">
       <select id="filtro-pc-estado" onchange="renderPedidosClientes()">
         <option value="">Todos los estados</option>
-        <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>Listo</option><option>Entregado</option>
+        <option>Encargado</option><option>Confirmado</option><option>En producción</option><option>En Tránsito</option><option>Listo</option><option>Entregado</option>
       </select>
       <input type="text" id="filtro-pc-cliente" placeholder="Buscar cliente..." style="width:160px" oninput="renderPedidosClientes()" />
     </div>
@@ -986,15 +986,57 @@ function seedData(){
 <div class="modal-overlay" id="modal-venta">
   <div class="modal">
     <div class="modal-title">Registrar Venta</div>
-    <div class="form-row"><div><label>Producto</label><select id="venta-producto" onchange="actualizarPrecioVenta()"></select></div></div>
-    <div class="form-row form-row-2">
-      <div><label>Cantidad</label><input id="venta-cantidad" type="number" min="1" value="1" oninput="actualizarPrecioVenta()" /></div>
-      <div><label>Estado</label><select id="venta-estado"><option>Pendiente</option><option>Pagado</option><option>En Tránsito</option><option>Entregado</option></select></div>
+
+    <!-- Selector de inventario -->
+    <div class="form-row" style="margin-bottom:8px;">
+      <div>
+        <label>Producto del inventario</label>
+        <select id="venta-producto" onchange="actualizarPrecioVenta()">
+          <option value="">— Seleccionar —</option>
+        </select>
+      </div>
     </div>
-    <div id="venta-total-preview" style="font-size:15px;font-weight:600;color:var(--accent);margin:4px 0 10px;"></div>
+
+    <!-- Producto seleccionado preview -->
+    <div id="venta-prod-preview" style="display:none;padding:10px 12px;background:var(--surface);border-radius:8px;border:1px solid var(--border);margin-bottom:12px;font-size:13px;">
+      <div id="venta-prod-info" style="font-weight:700;"></div>
+      <div id="venta-prod-stock" style="font-size:11px;color:var(--muted);margin-top:2px;"></div>
+    </div>
+
+    <div class="form-row form-row-2">
+      <div><label>Cantidad</label>
+        <input id="venta-cantidad" type="number" min="1" value="1" oninput="actualizarPrecioVenta()" />
+      </div>
+      <div><label>Estado</label>
+        <select id="venta-estado">
+          <option>Pendiente</option><option>Pagado</option><option>En Tránsito</option><option>Entregado</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Precio editable -->
+    <div style="margin-bottom:12px;">
+      <label>Precio de venta por unidad
+        <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;"> (editable — aplica descuento)</span>
+      </label>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="venta-precio-unit" type="number" min="0" step="0.01" placeholder="Precio original" oninput="actualizarPrecioVenta()" style="flex:1;" />
+        <button type="button" onclick="resetPrecioVenta()" class="btn btn-ghost btn-sm" title="Restaurar precio original">↺ Original</button>
+      </div>
+      <div id="venta-descuento-info" style="display:none;font-size:11px;color:var(--red);margin-top:4px;font-weight:600;"></div>
+    </div>
+
+    <!-- Total preview -->
+    <div id="venta-total-preview" style="padding:10px 14px;background:linear-gradient(90deg,#f0fdf4,#ecfdf5);border:1px solid #bbf7d0;border-radius:7px;margin-bottom:4px;display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.5px;">Total a cobrar</span>
+        <span id="venta-total-num" style="font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--accent2);"></span>
+      </div>
+    </div>
+
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('modal-venta')">Cancelar</button>
-      <button class="btn btn-primary" onclick="guardarVenta()">Registrar venta</button>
+      <button class="btn btn-primary" onclick="guardarVenta()">💰 Registrar venta</button>
     </div>
   </div>
 </div>
@@ -1118,7 +1160,7 @@ function badgeStock(p){
   if(p.stock<=3) return `<span class="badge badge-yellow">${p.stock} — bajo</span>`;
   return `<span class="badge badge-green">${p.stock}</span>`;
 }
-function badgePedidoCli(e){return badgeEstado(e,{'Encargado':'badge-yellow','Confirmado':'badge-blue','En producción':'badge-orange','Listo':'badge-purple','Entregado':'badge-green'});}
+function badgePedidoCli(e){return badgeEstado(e,{'Encargado':'badge-yellow','Confirmado':'badge-blue','En producción':'badge-orange','En Tránsito':'badge-cyan','Listo':'badge-purple','Entregado':'badge-green'});}
 function badgePedido(e){return badgeEstado(e,{'Pendiente':'badge-gray','Encargado':'badge-yellow','En Tránsito':'badge-blue','Enviado':'badge-orange','Por Entregar':'badge-purple','Entregado':'badge-green'});}
 
 /* ===== TOGGLE HELPERS ===== */
@@ -1548,9 +1590,19 @@ function renderVentas(){
     return true;
   }).sort((a,b)=>new Date(b.fecha)-new Date(a.fecha));
   document.getElementById('tabla-ventas').innerHTML=ventas.map(v=>{
-    const p=getProducto(v.productoId);
-    return `<tr><td>${fmtFecha(v.fecha)}</td><td>${p?p.nombre:'—'}</td><td>${p?p.talla:'—'}</td>
-    <td>${v.cantidad}</td><td>${fmt(v.total)}</td><td>${badgeVentaEstado(v.estado)}</td>
+    const nombre = v.nombre || (getProducto(v.productoId)?.nombre) || '—';
+    const talla  = v.talla  || (getProducto(v.productoId)?.talla)  || '—';
+    const descBadge = v.tieneDescuento ? `<span class="badge badge-orange" style="font-size:9px;margin-left:4px;">🏷️ desc.</span>` : '';
+    return `<tr>
+    <td>${fmtFechaCorta(v.fecha)}</td>
+    <td>${nombre}${descBadge}</td>
+    <td>${talla}</td>
+    <td>${v.cantidad}</td>
+    <td>
+      <b>$${v.total.toLocaleString('es-CO')}</b>
+      ${v.tieneDescuento&&v.precioOriginal?`<div style="font-size:10px;color:var(--muted);">P.O: $${(v.precioOriginal*v.cantidad).toLocaleString('es-CO')}</div>`:''}
+    </td>
+    <td>${badgeVentaEstado(v.estado)}</td>
     <td><select class="btn btn-ghost btn-sm" style="font-size:12px;padding:4px 8px;" onchange="cambiarEstadoVenta('${v.id}',this.value)">
     ${['Pendiente','Pagado','En Tránsito','Entregado'].map(e=>`<option ${e===v.estado?'selected':''}>${e}</option>`).join('')}
     </select></td></tr>`;
@@ -1565,32 +1617,101 @@ function cambiarEstadoVenta(id,nuevoEstado){
   if(v){v.estado=nuevoEstado;guardarDatos(); toast(`Estado → ${nuevoEstado}`);}
 }
 function openModalVenta(){
-  const sel=document.getElementById('venta-producto');
-  const activos=state.productos.filter(p=>p.activo&&p.stock>0);
-  sel.innerHTML=activos.map(p=>`<option value="${p.id}">${p.nombre} (${p.talla}) — Stock: ${p.stock}</option>`).join('');
+  const sel = document.getElementById('venta-producto');
+  // Populate from INVENTARIO (items with stock)
+  const activos = state.inventario.filter(i=>i.stock>0);
+  sel.innerHTML = '<option value="">— Seleccionar producto —</option>' +
+    activos.map(i=>`<option value="${i.id}">${i.nombre} · ${i.talla} · ${i.edicion||'Fan'}${i.personalizacion==='si'?' ✍️':''} — Stock: ${i.stock}</option>`).join('');
   document.getElementById('venta-cantidad').value='1';
   document.getElementById('venta-estado').value='Pendiente';
-  actualizarPrecioVenta();openModal('modal-venta');
+  document.getElementById('venta-precio-unit').value='';
+  document.getElementById('venta-prod-preview').style.display='none';
+  document.getElementById('venta-total-preview').style.display='none';
+  document.getElementById('venta-descuento-info').style.display='none';
+  actualizarPrecioVenta();
+  openModal('modal-venta');
 }
+
+let _ventaPrecioOriginal = 0;
+
 function actualizarPrecioVenta(){
-  const pid=document.getElementById('venta-producto').value;
-  const qty=parseInt(document.getElementById('venta-cantidad').value)||1;
-  const p=getProducto(pid);
-  if(p)document.getElementById('venta-total-preview').textContent=`Total: ${fmt(p.precio*qty)}`;
+  const iid   = document.getElementById('venta-producto').value;
+  const qty   = parseInt(document.getElementById('venta-cantidad').value)||1;
+  const item  = state.inventario.find(x=>x.id===iid);
+  const preview= document.getElementById('venta-prod-preview');
+  const totalPrev= document.getElementById('venta-total-preview');
+  const totalNum= document.getElementById('venta-total-num');
+  const descInfo= document.getElementById('venta-descuento-info');
+  const precioInp= document.getElementById('venta-precio-unit');
+
+  if(!item){ preview.style.display='none'; totalPrev.style.display='none'; return; }
+
+  // Show item info
+  preview.style.display='block';
+  document.getElementById('venta-prod-info').textContent =
+    `${item.nombre} · ${item.talla} · ${item.edicion||'Fan'}${item.personalizacion==='si'?' · ✍️ Estampado':''}`;
+  document.getElementById('venta-prod-stock').textContent =
+    `Stock disponible: ${item.stock} uds. · Precio base: $${(item.precio||0).toLocaleString('es-CO')}`;
+
+  // Auto-fill precio if empty
+  if(!precioInp.value && item.precio) {
+    precioInp.value = item.precio;
+    _ventaPrecioOriginal = item.precio;
+  } else if(item.precio && _ventaPrecioOriginal !== item.precio) {
+    _ventaPrecioOriginal = item.precio;
+  }
+
+  const precioUnit = parseFloat(precioInp.value)||item.precio||0;
+  const total = precioUnit * qty;
+
+  // Show/hide descuento info
+  if(precioUnit < (item.precio||0) && item.precio>0){
+    const desc = ((item.precio - precioUnit)/item.precio*100).toFixed(0);
+    descInfo.style.display='block';
+    descInfo.textContent = `🏷️ Descuento aplicado: ${desc}% ($${(item.precio-precioUnit).toLocaleString('es-CO')} menos por unidad)`;
+  } else {
+    descInfo.style.display='none';
+  }
+
+  totalPrev.style.display='block';
+  totalNum.textContent = '$' + total.toLocaleString('es-CO');
 }
+
+function resetPrecioVenta(){
+  const iid  = document.getElementById('venta-producto').value;
+  const item = state.inventario.find(x=>x.id===iid);
+  if(item && item.precio){
+    document.getElementById('venta-precio-unit').value = item.precio;
+    actualizarPrecioVenta();
+  }
+}
+
 function guardarVenta(){
-  const pid=document.getElementById('venta-producto').value;
-  const qty=parseInt(document.getElementById('venta-cantidad').value);
-  const estado=document.getElementById('venta-estado').value;
-  const p=getProducto(pid);
-  if(!p){toast('Producto no encontrado','err');return;}
-  if(isNaN(qty)||qty<1){toast('Cantidad inválida','err');return;}
-  if(p.stock<qty){toast(`Stock insuficiente. Disponible: ${p.stock}`,'err');return;}
-  p.stock-=qty;if(p.stock===0)p.activo=false;
-  const venta={id:uid(),fecha:new Date().toISOString(),productoId:pid,cantidad:qty,total:p.precio*qty,estado};
+  const iid    = document.getElementById('venta-producto').value;
+  const qty    = parseInt(document.getElementById('venta-cantidad').value);
+  const estado = document.getElementById('venta-estado').value;
+  const item   = state.inventario.find(x=>x.id===iid);
+
+  if(!item){ toast('Selecciona un producto del inventario','err'); return; }
+  if(isNaN(qty)||qty<1){ toast('Cantidad inválida','err'); return; }
+  if(item.stock<qty){ toast(`Stock insuficiente. Disponible: ${item.stock}`,'err'); return; }
+
+  const precioUnit = parseFloat(document.getElementById('venta-precio-unit').value)||item.precio||0;
+  const total = precioUnit * qty;
+
+  item.stock -= qty;
+
+  const venta = {
+    id:uid(), fecha:new Date().toISOString(),
+    productoId:iid, nombre:item.nombre, talla:item.talla,
+    edicion:item.edicion||'Fan', cantidad:qty,
+    precioUnit, precioOriginal:item.precio||0, total, estado,
+    tieneDescuento: precioUnit < (item.precio||0)
+  };
   state.ventas.push(venta);
-  guardarDatos(); renderVentas();renderInventario();closeModal('modal-venta');
-  toast(`Venta registrada: ${qty} × ${p.nombre} ${p.talla}`);
+  guardarDatos(); renderVentas(); renderInventario(); closeModal('modal-venta');
+  const descTxt = venta.tieneDescuento ? ` (con descuento)` : '';
+  toast(`✅ Venta: ${qty}× ${item.nombre} ${item.talla} · $${total.toLocaleString('es-CO')}${descTxt}`);
 }
 function registrarVentaProgramatica(productoId,cantidad,estado='Pendiente'){
   const p=getProducto(productoId);
@@ -1987,7 +2108,7 @@ function renderPedidosClientes(){
     <td>${badgePedidoCli(p.estado)}</td>
     <td style="white-space:nowrap;">
       <select class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 6px;" onchange="cambiarEstadoPedidoCli('${p.id}',this.value)">
-        ${['Encargado','Confirmado','En producción','Listo','Entregado'].map(e=>`<option ${e===p.estado?'selected':''}>${e}</option>`).join('')}
+        ${['Encargado','Confirmado','En producción','En Tránsito','Listo','Entregado'].map(e=>`<option ${e===p.estado?'selected':''}>${e}</option>`).join('')}
       </select>
       <button class="btn btn-ghost btn-sm" title="Copiar" onclick="copiarPedidoGuardado('${p.id}')">📋</button>
       <button class="btn btn-ghost btn-sm" title="Compartir" onclick="compartirPedidoGuardado('${p.id}')">📤</button>
